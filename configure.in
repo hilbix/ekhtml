@@ -23,6 +23,7 @@ AC_SUBST(CFLAGS)
 AC_OUTPUT(
         Doxyfile 
         Makefile 
+        docs/Makefile
         include/Makefile
         src/Makefile
         testsuite/Makefile 

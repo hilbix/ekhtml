@@ -1,6 +1,4 @@
-SUBDIRS = src testsuite include
-
-EXTRA_DIST = docs
+SUBDIRS = src testsuite include docs
 
 if MAINTAINER_MODE
 docs: Doxyfile
