@@ -29,6 +29,10 @@
 
 #include <stdio.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*! 
  * \file ekhtml.h
  * \brief Main El-Kabong header file.
@@ -145,6 +149,18 @@ typedef void (*ekhtml_endtag_cb_t)(void *cbdata, ekhtml_string_t *tag);
 extern ekhtml_parser_t *ekhtml_parser_new(void *cbdata);
 
 /**
+ * Destroys a parser object and all memory associated with it.
+ * After calling this routine, the parser should no longer be
+ * used, as any results would be undefined.
+ *
+ * @param parser  The parser to destroy
+ *
+ * @see ekhtml_parser_new()
+ */
+
+extern void ekhtml_parser_destroy(ekhtml_parser_t *parser);
+
+/**
  * Set the callback data for the parser.
  * This routine sets the callback data which is passed to set callbacks.
  *
@@ -242,5 +258,9 @@ extern void ekhtml_parser_endcb_add(ekhtml_parser_t *parser, const char *tag,
 
 /** EKHTML_BLOCKSIZE = # of blocks to allocate per chunk */
 #define EKHTML_BLOCKSIZE (1024 * 4)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
