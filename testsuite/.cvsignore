@@ -1,7 +1,11 @@
 .deps
 .libs
+1
+2
 Makefile
 Makefile.in
+crazy.page
+ek_sgmllib.pyc
 filter
 filterpage.html
 tester
