@@ -1,2 +1,2 @@
-include_HEADERS = ekhtml.h ekhtml_config.h
+include_HEADERS = ekhtml.h
 EXTRA_DIST = ekhtml_private.h
