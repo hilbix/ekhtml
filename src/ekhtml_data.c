@@ -27,6 +27,7 @@
 #include <string.h>
 #include <assert.h>
 
+#include "ekhtml_config.h"
 #include "ekhtml.h"
 #include "ekhtml_tables.h"
 #define EKHTML_USE_PRIVATE

@@ -28,7 +28,6 @@
 #define EKHTML_DOT_H
 
 #include <stdio.h>
-#include "ekhtml_config.h"
 
 /*! 
  * \file ekhtml.h

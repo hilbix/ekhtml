@@ -62,6 +62,7 @@
 #include <ctype.h>
 #include <assert.h>
 
+#include "ekhtml_config.h"
 #include "ekhtml.h"
 #define EKHTML_USE_TABLES
 #include "ekhtml_tables.h"

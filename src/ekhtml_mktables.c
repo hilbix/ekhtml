@@ -36,6 +36,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+
+
+#include "ekhtml_config.h"
 #include "ekhtml.h"
 #define EKHTML_USE_PRIVATE
 #include "ekhtml_private.h"
