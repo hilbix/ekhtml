@@ -6,6 +6,7 @@ EXTRA_DIST = \
 	plparser.pl \
 	pyparser.py \
 	test_basic.sh \
+	test_bogus_feedsize.sh \
 	test_crazypage.sh \
 	tstpages
 
