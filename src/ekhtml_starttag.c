@@ -106,9 +106,10 @@ static void handle_starttag(ekhtml_parser_t *parser, char *curp,
     ekhtml_tag_container *container;
     ekhtml_starttag_cb_t cback = NULL;
     int taglen = sstate->tagend - 1;
+    ekhtml_string_t str;
     ekhtml_attr_t *attr;
     char *upper_str;
-    
+
     upper_str = ekhtml_make_upperstr(curp + 1, taglen);
     if(parser->startcb && 
        (container = apr_hash_get(parser->startcb, upper_str, taglen)))
@@ -123,12 +124,14 @@ static void handle_starttag(ekhtml_parser_t *parser, char *curp,
     /* Formulate real attribute callback data from the 'offset' 
        pointer values */
     for(attr=sstate->attrs;attr;attr=attr->next){
-        attr->name = curp + (int)attr->name;
-        if(attr->val)
-            attr->val = curp + (int)attr->val;
+        attr->name.str = curp + (int)attr->name.str;
+        if(attr->val.str)
+            attr->val.str = curp + (int)attr->val.str;
     }
     
-    cback(parser->cbdata, upper_str, taglen, sstate->attrs);
+    str.str = upper_str;
+    str.len = taglen;
+    cback(parser->cbdata, &str, sstate->attrs);
 }
 
 static void release_attributes(ekhtml_parser_t *parser,
@@ -208,10 +211,10 @@ char *ekhtml_parse_starttag(ekhtml_parser_t *parser, void **state_data,
                 assert(startstate->curattr == NULL);
                 /* Valid attribute name, allocate space for it */
                 attr = ekhtml_parser_attr_new(parser);
-                attr->name          = (char *)NULL + (workp - curp);
-                attr->namelen       = 0;     /* Will get assigned later */
-                attr->val           = NULL;
-                attr->vallen        = 0;
+                attr->name.str      = (char *)NULL + (workp - curp);
+                attr->name.len      = 0;     /* Will get assigned later */
+                attr->val.str       = NULL;
+                attr->val.len       = 0;
                 attr->next          = NULL;
                 startstate->mode    = EKHTML_STMODE_GETNAME;
                 startstate->curattr = attr;
@@ -227,8 +230,8 @@ char *ekhtml_parse_starttag(ekhtml_parser_t *parser, void **state_data,
             
             /* There be dragons here -- watch out -- see comment @ top 
                of file */
-            startstate->curattr->namelen = 
-                workp - (curp + (int)startstate->curattr->name);
+            startstate->curattr->name.len = 
+                workp - (curp + (int)startstate->curattr->name.str);
             if(*workp == '='){
                 startstate->mode = EKHTML_STMODE_BEGVALUE;
                 workp++;  /* Skip the equals sign */
@@ -278,10 +281,10 @@ char *ekhtml_parse_starttag(ekhtml_parser_t *parser, void **state_data,
             if(workp == endp)
                 break;
             
-            startstate->curattr->val = (char *)NULL + (workp - curp);
+            startstate->curattr->val.str = (char *)NULL + (workp - curp);
             startstate->quote        = '\0';
             if(*workp == '"' || *workp == '\''){
-                startstate->curattr->val++;  /* Skip the quote */
+                startstate->curattr->val.str++;  /* Skip the quote */
                 startstate->mode   = EKHTML_STMODE_GETVALUE;
                 startstate->quote  = *workp;
                 workp++;
@@ -289,7 +292,7 @@ char *ekhtml_parse_starttag(ekhtml_parser_t *parser, void **state_data,
                         EKHTML_CHAR_ATTRVALUE))
             {
                 /* Bad value .. */
-                startstate->curattr->vallen = 0;
+                startstate->curattr->val.len = 0;
                 scroll_attribute(startstate);
                 startstate->mode = EKHTML_STMODE_SUCK;
             } else {
@@ -302,8 +305,8 @@ char *ekhtml_parse_starttag(ekhtml_parser_t *parser, void **state_data,
             if(startstate->quote){
                 for(;workp != endp && *workp != '>' && *workp != '<'; workp++){
                     if(*workp == startstate->quote){
-                        startstate->curattr->vallen = 
-                            workp - (curp + (int)startstate->curattr->val);
+                        startstate->curattr->val.len = 
+                            workp - (curp + (int)startstate->curattr->val.str);
                         scroll_attribute(startstate);
                         startstate->mode = EKHTML_STMODE_BEGNAME;
                         workp++;  /* Skip the quote */
@@ -321,8 +324,8 @@ char *ekhtml_parse_starttag(ekhtml_parser_t *parser, void **state_data,
             if(workp == endp)
                 break;
             
-            startstate->curattr->vallen = 
-                workp - (curp + (int)startstate->curattr->val);
+            startstate->curattr->val.len = 
+                workp - (curp + (int)startstate->curattr->val.str);
             scroll_attribute(startstate);
             
             if(*workp == '>' || *workp == '<') {

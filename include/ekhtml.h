@@ -41,6 +41,17 @@
  */
 
 /**
+ * A string object, which is not NUL terminated.
+ * For speed reasons, El-Kabong does not deal with zero-terminated
+ * strings.  
+ */
+
+typedef struct ekhtml_string_t {
+    const char *str;    /**< Actual string data          */
+    size_t      len;    /**< Length of the data in `str` */
+} ekhtml_string_t;
+
+/**
  * Attribute object, passed into callbacks.  
  * When ekhtml parses tags containing key/value attributes, it will pass 
  * this structure representing those values into the callbacks.  Note, for 
@@ -50,14 +61,12 @@
  */
 
 typedef struct ekhtml_attr_t {
-    const char *name;           /**< Name of the attribute                 */
-    apr_size_t namelen;         /**< Length of `name`                      */
-    
-    const char *val;            /**< Value of the attribute.  If the 
-                                   attribute is boolean (i.e. <FOO BAR>), 
-                                   then this value will be NULL            */
-    apr_size_t vallen;          /**< Length of `val`                       */
-    struct ekhtml_attr_t *next; /**< Pointer to next attribute in the list */
+    ekhtml_string_t       name;       /**< Name of the attribute             */
+    ekhtml_string_t       val;        /**< Value of the attribute            */
+#if 0
+    unsigned int          isBoolean;  /**< True of the attribute is boolean  */
+#endif
+    struct ekhtml_attr_t *next;  /**< Pointer to next attribute in the list  */
 } ekhtml_attr_t;
 
 /*
@@ -82,15 +91,13 @@ typedef struct ekhtml_parser_t ekhtml_parser_t;
  * The data passed into the callback function will be "data_to_process"
  *
  * @param cbdata Callback data, as previously set by ekhtml_parser_cbdata_set
- * @param data   A pointer to the non-zero terminated data in-between tags.
- * @param ndata  Length of the data contained in `data`
+ * @param data   A pointer to the data in-between tags.
  *              
  * @see ekhtml_parser_cbdata_set()
  * @see ekhtml_parser_datacb_set()
  */
 
-typedef void (*ekhtml_data_cb_t)(void *cbdata, const char *data, 
-				 apr_size_t ndata);
+typedef void (*ekhtml_data_cb_t)(void *cbdata, ekhtml_string_t *data);
 
 /**
  * Callback for start tags.
@@ -100,16 +107,15 @@ typedef void (*ekhtml_data_cb_t)(void *cbdata, const char *data,
  * The tag passed into the callback will be "FOO" with a length of 3.
  *
  * @param cbdata Callback data, as previously set by ekhtml_parser_cbdata_set
- * @param tag    A pointer to the non-zero terminated tag name.
- * @param ntag   The length of the data contained in 'tag'
+ * @param tag    A pointer to tag name.
  * @param attrs  Attributes of the tag.  
  *              
  * @see ekhtml_parser_cbdata_set()
  * @see ekhtml_parser_startcb_add()
  */
 
-typedef void (*ekhtml_starttag_cb_t)(void *cbdata, const char *tag, 
-				     apr_size_t ntag, ekhtml_attr_t *attrs);
+typedef void (*ekhtml_starttag_cb_t)(void *cbdata, ekhtml_string_t *tag,
+				     ekhtml_attr_t *attrs);
 
 /**
  * Callback for end tags.
@@ -119,15 +125,13 @@ typedef void (*ekhtml_starttag_cb_t)(void *cbdata, const char *tag,
  * The tag passed into the callback will be "FOO" with a length of 3.
  *
  * @param cbdata Callback data, as previously set by ekhtml_parser_cbdata_set
- * @param tag    A pointer to the non-zero terminated tag name.
- * @param ntag   The length of the data contained in 'tag'
+ * @param tag    A pointer to the tag name.
  *              
  * @see ekhtml_parser_cbdata_set()
  * @see ekhtml_parser_endcb_add()
  */
 
-typedef void (*ekhtml_endtag_cb_t)(void *cbdata, const char *tag, 
-				   apr_size_t ntag);
+typedef void (*ekhtml_endtag_cb_t)(void *cbdata, ekhtml_string_t *tag);
 
 /**
  * Create a new parser object.
@@ -187,11 +191,10 @@ extern void ekhtml_parser_commentcb_set(ekhtml_parser_t *parser,
  *
  * @param parser  Parser to feed data to
  * @param data    Data to feed to the parser
- * @param ndata   Number of bytes in `data`
  */
 
 extern void ekhtml_parser_feed(ekhtml_parser_t *parser, 
-                               const char *data, apr_size_t ndata);
+                               ekhtml_string_t *data);
 
 /**
  * Flush the parser innards.

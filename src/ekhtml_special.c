@@ -55,8 +55,13 @@ char *ekhtml_parse_special(ekhtml_parser_t *parser, void **state_data,
         return NULL;  
     }
     
-    if(parser->datacb)
-        parser->datacb(parser->cbdata, curp, workp - curp + 1);
+    if(parser->datacb){
+        ekhtml_string_t str;
+
+        str.str = curp;
+        str.len = workp - curp + 1;
+        parser->datacb(parser->cbdata, &str);
+    }
     
     *state_data = NULL;
     if(*workp == '<')  /* Malformed HTML */

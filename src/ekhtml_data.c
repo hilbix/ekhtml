@@ -48,8 +48,13 @@ char *ekhtml_parse_data(ekhtml_parser_t *parser, const char *curp,
     }
     resp = memchr(startp, '<', endp - startp);
     resp = resp ? resp : endp;
-    if(parser->datacb)
-        parser->datacb(parser->cbdata, curp, resp - curp);
+    if(parser->datacb){
+        ekhtml_string_t str;
+
+        str.str = curp;
+        str.len = resp - curp;
+        parser->datacb(parser->cbdata, &str);
+    }
     return (char *)resp;
 }
 

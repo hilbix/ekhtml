@@ -44,7 +44,7 @@ typedef struct {
     unsigned int only_parse;
 } tester_cbdata;
 
-static void handle_starttag(void *cbdata, const char *tag, apr_size_t ntag, 
+static void handle_starttag(void *cbdata, ekhtml_string_t *tag,
 			    ekhtml_attr_t *attrs)
 {
     ekhtml_attr_t *attr;
@@ -55,17 +55,17 @@ static void handle_starttag(void *cbdata, const char *tag, apr_size_t ntag,
     if(tdata->only_parse)
         return;
     
-    printf("START: \"%.*s\"\n", ntag, tag);
+    printf("START: \"%.*s\"\n", tag->len, tag->str);
     for(attr=attrs; attr; attr=attr->next) {
-        printf("ATTRIBUTE: \"%.*s\" = ", attr->namelen, attr->name);
-        if(attr->val)
-            printf("\"%.*s\"\n", attr->vallen, attr->val);
+        printf("ATTRIBUTE: \"%.*s\" = ", attr->name.len, attr->name.str);
+        if(attr->val.str)
+            printf("\"%.*s\"\n", attr->val.len, attr->val.str);
         else
-            printf("\"%.*s\"\n", attr->namelen, attr->name);
+            printf("\"%.*s\"\n", attr->name.len, attr->name.str);
     }
 }
 
-static void handle_endtag(void *cbdata, const char *tag, apr_size_t ntag){
+static void handle_endtag(void *cbdata, ekhtml_string_t *str){
     tester_cbdata *tdata = cbdata;
     
     assert(tdata->magic_doodie == MAGIC_DOODIE);
@@ -73,10 +73,10 @@ static void handle_endtag(void *cbdata, const char *tag, apr_size_t ntag){
     if(tdata->only_parse)
         return;
     
-    printf("END: \"%.*s\"\n", ntag, tag);
+    printf("END: \"%.*s\"\n", str->len, str->str);
 }
 
-static void handle_comment(void *cbdata, const char *data, apr_size_t len){
+static void handle_comment(void *cbdata, ekhtml_string_t *str){
     tester_cbdata *tdata = cbdata;
     
     assert(tdata->magic_doodie == MAGIC_DOODIE);
@@ -84,10 +84,10 @@ static void handle_comment(void *cbdata, const char *data, apr_size_t len){
     if(tdata->only_parse)
         return;
     
-    printf("COMMENT: \"%.*s\"\n", len, data);
+    printf("COMMENT: \"%.*s\"\n", str->len, str->str);
 }
 
-static void handle_data(void *cbdata, const char *data, apr_size_t len){
+static void handle_data(void *cbdata, ekhtml_string_t *str){
     tester_cbdata *tdata = cbdata;
     
     assert(tdata->magic_doodie == MAGIC_DOODIE);
@@ -95,7 +95,7 @@ static void handle_data(void *cbdata, const char *data, apr_size_t len){
     if(tdata->only_parse)
         return;
     
-    fwrite(data, len, 1, stdout);
+    fwrite(str->str, str->len, 1, stdout);
 }
 
 int main(int argc, char *argv[]){
@@ -133,7 +133,11 @@ int main(int argc, char *argv[]){
     buf = apr_pcalloc(p, feedsize);
     
     while((nbuf = fread(buf, 1, feedsize, stdin))){
-        ekhtml_parser_feed(ekparser, buf, nbuf);
+        ekhtml_string_t str;
+
+        str.str = buf;
+        str.len = nbuf;
+        ekhtml_parser_feed(ekparser, &str);
         ekhtml_parser_flush(ekparser, 0);
     }
     ekhtml_parser_flush(ekparser, 1);

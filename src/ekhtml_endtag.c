@@ -43,17 +43,15 @@
 #define EKHTML_USE_PRIVATE
 #include "ekhtml_private.h"
 
-static void handle_endtag(ekhtml_parser_t *parser, const char *data, 
-			  apr_size_t len)
-{
+static void handle_endtag(ekhtml_parser_t *parser, ekhtml_string_t *str){
     ekhtml_tag_container *container;
     
     if(parser->endcb &&
-       (container = apr_hash_get(parser->endcb, data, len)))
+       (container = apr_hash_get(parser->endcb, str->str, str->len)))
     {
-        container->endfunc(parser->cbdata, data, len);
+        container->endfunc(parser->cbdata, str);
     } else if(parser->endcb_unk)
-        parser->endcb_unk(parser->cbdata, data, len);
+        parser->endcb_unk(parser->cbdata, str);
 }
 
 char *ekhtml_parse_endtag(ekhtml_parser_t *parser, void **state_data,
@@ -62,6 +60,7 @@ char *ekhtml_parse_endtag(ekhtml_parser_t *parser, void **state_data,
     const char *workp, *arrowp, *upper_tag;
     ekhtml_endtag_state *endstate = *state_data;
     int taglen, *offset = &parser->state.offset;
+    ekhtml_string_t str;
     
     /* Prerequisites for this function are that the first chars are </' 
        and that there are at least 3 bytes of data to work with         */
@@ -78,7 +77,9 @@ char *ekhtml_parse_endtag(ekhtml_parser_t *parser, void **state_data,
                 *baddata = EKHTML_STATE_BADDATA;
                 return (char *)curp;
             } else { /* Might as well handle this case while we are here */
-                handle_endtag(parser, "", 0);
+                str.str = "";
+                str.len = 0;
+                handle_endtag(parser, &str);
                 return (char *)(*secondchar == '>' ? secondchar + 1 : 
                                 secondchar);
             }
@@ -112,7 +113,9 @@ char *ekhtml_parse_endtag(ekhtml_parser_t *parser, void **state_data,
      */
     taglen = endstate->lastchar + 1 - 2;
     upper_tag = ekhtml_make_upperstr(curp + 2, taglen);
-    handle_endtag(parser, upper_tag, taglen);
+    str.str = upper_tag;
+    str.len = taglen;
+    handle_endtag(parser, &str);
     *state_data = NULL;
     assert(arrowp < endp);
     if(*arrowp == '<'){ /* Malformed HTML */

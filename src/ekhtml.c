@@ -207,8 +207,13 @@ int ekhtml_parser_flush(ekhtml_parser_t *parser, int flushall){
 
     if(flushall){
         /* Flush whatever we didn't use */
-        if(parser->datacb)
-            parser->datacb(parser->cbdata, curp, endp - curp);
+        if(parser->datacb){
+            ekhtml_string_t str;
+
+            str.str = curp;
+            str.len = endp - curp;
+            parser->datacb(parser->cbdata, &str);
+        }
         curp = endp;
         didsomething = 1;
         tmpstate = EKHTML_STATE_NONE;   /* Clean up to an unknown state */
@@ -227,17 +232,15 @@ int ekhtml_parser_flush(ekhtml_parser_t *parser, int flushall){
     return didsomething;
 }
 
-void ekhtml_parser_feed(ekhtml_parser_t *parser, const char *data,
-			apr_size_t ndata)
-{
+void ekhtml_parser_feed(ekhtml_parser_t *parser, ekhtml_string_t *str){
     apr_size_t nfed = 0;
     
-    while(nfed != ndata){
+    while(nfed != str->len){
         apr_size_t tocopy;
         
         /* First see how much we can fill up our internal buffer */
-        tocopy = MIN(parser->nalloced - parser->nbuf, ndata - nfed);
-        memcpy(parser->buf + parser->nbuf, data + nfed, tocopy);
+        tocopy = MIN(parser->nalloced - parser->nbuf, str->len - nfed);
+        memcpy(parser->buf + parser->nbuf, str->str + nfed, tocopy);
         nfed         += tocopy;
         parser->nbuf += tocopy;
         if(parser->nalloced == parser->nbuf){

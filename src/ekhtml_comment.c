@@ -87,9 +87,13 @@ char *ekhtml_parse_comment(ekhtml_parser_t *parser, void **state_data,
         }
         
         if(*workp == '>'){
-            if(parser->commentcb)
-                parser->commentcb(parser->cbdata, curp + 4,
-                                  comstate->lastdash - 1 - 4);
+            if(parser->commentcb){
+                ekhtml_string_t str;
+
+                str.str = curp + 4;
+                str.len = comstate->lastdash - 1 - 4;
+                parser->commentcb(parser->cbdata, &str);
+            }
             *state_data = NULL;
             return (char *)workp + 1;
         }
