@@ -1,3 +1,4 @@
+*.pyc
 .deps
 .libs
 1
@@ -5,7 +6,9 @@
 Makefile
 Makefile.in
 crazy.page
+ek.test
 ek_sgmllib.pyc
 filter
 filterpage.html
+py.test
 tester
