@@ -35,8 +35,7 @@
  */
 
 #include <assert.h>
-
-#include "apr_lib.h"
+#include <ctype.h>
 
 #include "ekhtml.h"
 #include "ekhtml_tables.h"
@@ -45,8 +44,10 @@
 
 static void handle_endtag(ekhtml_parser_t *parser, ekhtml_string_t *str){
     ekhtml_tag_container *container;
+    hnode_t *hn;
     
-    if((container = apr_hash_get(parser->startendcb, str->str, str->len)) &&
+    if((hn = hash_lookup(parser->startendcb, str)) &&
+       (container = hnode_get(hn)) && 
        container->endfunc)
     {
         container->endfunc(parser->cbdata, str);
@@ -71,7 +72,7 @@ char *ekhtml_parse_endtag(ekhtml_parser_t *parser, void **state_data,
         const char *secondchar = curp + 2;
 
         /* Initial check to make sure this isn't some bad tag */
-        if(!apr_isalpha(*secondchar)){
+        if(!isalpha(*secondchar)){
             if(*secondchar != '>' && *secondchar != '<'){
                 /* Bogus tag */
                 *baddata = EKHTML_STATE_BADDATA;

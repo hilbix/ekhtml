@@ -24,9 +24,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "apr_lib.h"
-#include "apr_strings.h"
-
+#include <ctype.h>
 #include "ekhtml.h"
 #include "ekhtml_tables.h"
 #define EKHTML_USE_PRIVATE
@@ -48,7 +46,7 @@ char *ekhtml_make_upperstr(char *buf, int len){
     char *endp = buf + len, *cp;
     
     for(cp = buf; cp < endp; cp++)
-        *cp = apr_toupper(*cp);
+        *cp = toupper(*cp);
     return buf;
 }
 

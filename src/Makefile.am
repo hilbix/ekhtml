@@ -5,7 +5,8 @@ libekhtml_la_SOURCES = 		\
 	ekhtml_endtag.c 	\
 	ekhtml_special.c	\
 	ekhtml_starttag.c	\
-	ekhtml_util.c
+	ekhtml_util.c		\
+	hash.c
 
 libekhtml_la_DEPENDENCIES = ekhtml_tables.h
 lib_LTLIBRARIES = libekhtml.la

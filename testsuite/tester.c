@@ -28,9 +28,6 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "apr.h"
-#include "apr_general.h"
-
 #include "ekhtml.h"
 
 #define MAGIC_DOODIE 0xf9d33bc1
@@ -101,7 +98,6 @@ static void handle_data(void *cbdata, ekhtml_string_t *str){
 int main(int argc, char *argv[]){
     tester_cbdata cbdata;
     ekhtml_parser_t *ekparser;
-    apr_pool_t *p;
     char *buf;
     size_t nbuf;
     int feedsize;
@@ -114,9 +110,7 @@ int main(int argc, char *argv[]){
     
     feedsize = atoi(argv[1]);
     
-    apr_initialize();
-    apr_pool_create(&p, NULL);
-    ekparser = ekhtml_parser_new(p, NULL);
+    ekparser = ekhtml_parser_new(NULL);
     
     cbdata.n_starttags  = 0;
     cbdata.n_endtags    = 0;
@@ -130,7 +124,7 @@ int main(int argc, char *argv[]){
     ekhtml_parser_startcb_add(ekparser, NULL, handle_starttag);
     ekhtml_parser_endcb_add(ekparser, NULL, handle_endtag);
     ekhtml_parser_cbdata_set(ekparser, &cbdata);
-    buf = apr_pcalloc(p, feedsize);
+    buf = malloc(feedsize);
     
     while((nbuf = fread(buf, 1, feedsize, stdin))){
         ekhtml_string_t str;
@@ -141,8 +135,8 @@ int main(int argc, char *argv[]){
         ekhtml_parser_flush(ekparser, 0);
     }
     ekhtml_parser_flush(ekparser, 1);
-    apr_pool_destroy(p);
-    
+    ekhtml_parser_destroy(ekparser);
+    free(buf);
     
     if(argc == 3){
         fprintf(stderr, 

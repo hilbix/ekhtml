@@ -44,8 +44,7 @@
  */
 
 #include <assert.h>
-
-#include "apr_lib.h"
+#include <stdlib.h>
 
 #include "ekhtml.h"
 #include "ekhtml_tables.h"
@@ -59,6 +58,23 @@
 #define EKHTML_STMODE_GETEQUAL 4  /* Find the equals sign                    */
 #define EKHTML_STMODE_BEGVALUE 5  /* Get the beginning of a attribute value  */
 #define EKHTML_STMODE_GETVALUE 6  /* Get the rest of an attribute value      */
+
+/*
+ * ekhtml_parser_starttag_cleanup:  Cleanup allocated memory, as the 
+ *                                  parser object is about to be destroyed
+ *
+ * Arguments:      parser = Parser to cleanup
+ *
+ */
+
+void ekhtml_parser_starttag_cleanup(ekhtml_parser_t *parser){
+    ekhtml_attr_t *attr, *next;
+
+    for(attr=parser->freeattrs; attr; attr=next){
+        next = attr->next;
+        free(attr);
+    }
+}
 
 /*
  * ekhtml_parser_newattr:  Get a new unused attribute structure.  
@@ -76,7 +92,7 @@ ekhtml_attr_t *ekhtml_parser_attr_new(ekhtml_parser_t *parser){
     ekhtml_attr_t *res;
     
     if(parser->freeattrs == NULL){
-        res = apr_palloc(parser->pool, sizeof(*res));
+        res = malloc(sizeof(*res));
     } else {
         res = parser->freeattrs;
         /* Remove it from the list */
@@ -109,9 +125,14 @@ static void handle_starttag(ekhtml_parser_t *parser, char *curp,
     ekhtml_string_t str;
     ekhtml_attr_t *attr;
     char *upper_str;
+    hnode_t *hn;
 
     upper_str = ekhtml_make_upperstr(curp + 1, taglen);
-    if((container = apr_hash_get(parser->startendcb, upper_str, taglen)) &&
+    str.str = upper_str;
+    str.len = taglen;
+
+    if((hn = hash_lookup(parser->startendcb, &str)) &&
+       (container = hnode_get(hn)) &&
        container->startfunc)
     {
         cback = container->startfunc;
@@ -129,8 +150,6 @@ static void handle_starttag(ekhtml_parser_t *parser, char *curp,
             attr->val.str = curp + (int)attr->val.str;
     }
     
-    str.str = upper_str;
-    str.len = taglen;
     cback(parser->cbdata, &str, sstate->attrs);
 }
 
@@ -164,7 +183,7 @@ char *ekhtml_parse_starttag(ekhtml_parser_t *parser, void **state_data,
     int *offset = &parser->state.offset;
     char *workp;
     
-    assert(*curp == '<' && apr_isalpha(*(curp + 1)));
+    assert(*curp == '<' && isalpha(*(curp + 1)));
     assert(endp - curp >= 3);
     
     if(startstate == NULL){  /* First time the tag is called */

@@ -28,7 +28,7 @@
  * ekhtml: The El-Kabong HTML parser
  *         by Jon Travis (jtravis@p00p.org)
  *
- * El-Kabong: A speedy, yet forgiving, APR-centric, SAX-stylee HTML parser.  
+ * El-Kabong: A speedy, yet forgiving, SAX-stylee HTML parser.  
  *
  * The idea behind this parser is for it to use very little memory, and still 
  * be very speedy, while forgiving poorly written HTML.
@@ -59,13 +59,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <assert.h>
-
-#include "apr.h"
-#include "apr_lib.h"
-#include "apr_hash.h"
-#include "apr_general.h"
-#include "apr_strings.h"
 
 #include "ekhtml.h"
 #define EKHTML_USE_TABLES
@@ -88,8 +83,7 @@
  */
 
 static void ekhtml_buffer_grow(ekhtml_parser_t *parser){
-    apr_abortfunc_t afunc;
-    apr_size_t newsize;
+    size_t newsize;
     char *newbuf;
     
     newsize = parser->nalloced + EKHTML_BLOCKSIZE;
@@ -98,8 +92,6 @@ static void ekhtml_buffer_grow(ekhtml_parser_t *parser){
         fprintf(stderr, "BAD! Can't allocate %d bytes in ekhtml_buffer_grow\n",
                 newsize);
         fflush(stderr); /* Just in case someone changes the buffering scheme */
-        afunc = apr_pool_get_abort(parser->pool);
-        afunc(APR_ENOMEM);
     }
 
     parser->buf      = newbuf;
@@ -233,10 +225,10 @@ int ekhtml_parser_flush(ekhtml_parser_t *parser, int flushall){
 }
 
 void ekhtml_parser_feed(ekhtml_parser_t *parser, ekhtml_string_t *str){
-    apr_size_t nfed = 0;
+    size_t nfed = 0;
     
     while(nfed != str->len){
-        apr_size_t tocopy;
+        size_t tocopy;
         
         /* First see how much we can fill up our internal buffer */
         tocopy = MIN(parser->nalloced - parser->nbuf, str->len - nfed);
@@ -271,39 +263,52 @@ ekhtml_parser_startendcb_add(ekhtml_parser_t *parser, const char *tag,
                              ekhtml_endtag_cb_t endcb,
                              int isStart)
 {
-    if(tag){
-        ekhtml_tag_container *cont;
-        char *newtag, *cp;
-        unsigned int taglen;
+    ekhtml_tag_container *cont;
+    ekhtml_string_t lookup_str;
+    char *newtag, *cp;
+    unsigned int taglen;
+    hnode_t *hn;
 
-        newtag = apr_pstrdup(parser->pool, tag);
-        for(cp=newtag; *cp; cp++)
-            *cp = apr_toupper(*cp);
-        
-        taglen = cp - newtag;
-
-        /* First see if the container already exists */
-        if((cont = apr_hash_get(parser->startendcb, newtag, taglen))){
-            if(isStart)
-                cont->startfunc = startcb;
-            else
-                cont->endfunc = endcb;
-        } else {
-            cont = apr_palloc(parser->pool, sizeof(*cont));
-            if(isStart){
-                cont->startfunc = startcb;
-                cont->endfunc   = NULL;
-            } else {
-                cont->startfunc = NULL;
-                cont->endfunc   = endcb;
-            }
-            apr_hash_set(parser->startendcb, newtag, taglen, cont);
-        }
-    } else {
+    if(!tag){
         if(isStart)
             parser->startcb_unk = startcb;
         else
             parser->endcb_unk = endcb;
+        return;
+    }
+
+
+    newtag = strdup(tag);
+    for(cp=newtag; *cp; cp++)
+        *cp = toupper(*cp);
+    
+    taglen = cp - newtag;
+
+    /* First see if the container already exists */
+    lookup_str.str = newtag;
+    lookup_str.len = taglen;
+
+    if((hn = hash_lookup(parser->startendcb, &lookup_str))){
+        cont = hnode_get(hn);
+        free(newtag);
+        if(isStart)
+            cont->startfunc = startcb;
+        else
+            cont->endfunc = endcb;
+    } else {
+        ekhtml_string_t *set_str;
+
+        cont = malloc(sizeof(*cont));
+        if(isStart){
+            cont->startfunc = startcb;
+            cont->endfunc   = NULL;
+        } else {
+            cont->startfunc = NULL;
+            cont->endfunc   = endcb;
+        }
+        set_str = malloc(sizeof(*set_str));
+        *set_str = lookup_str;
+        hash_alloc_insert(parser->startendcb, set_str, cont);
     }
 }
 
@@ -320,20 +325,56 @@ void ekhtml_parser_endcb_add(ekhtml_parser_t *parser, const char *tag,
 }
 
 
-static apr_status_t ekhtml_parser_cleanup(void *cbdata){
-    ekhtml_parser_t *ekparser = cbdata;
-    
-    free(ekparser->buf);
-    return APR_SUCCESS;
+static hash_val_t ekhtml_string_hash(const void *key){
+    const ekhtml_string_t *s = key;
+    hash_val_t res = 5381;
+    const char *str = s->str;
+    size_t len = s->len;
+    int c;
+
+    while(len--){
+        c = str[len];
+        res = ((res << 5) + res) + c; /* res * 33 + c */
+    }
+    return res;
 }
 
-ekhtml_parser_t *ekhtml_parser_new(apr_pool_t *pool, void *cbdata){
+static int ekhtml_string_comp(const void *key1, const void *key2){
+    const ekhtml_string_t *s1 = key1, *s2 = key2;
+
+    if(s1->len == s2->len)
+        return memcmp(s1->str, s2->str, s1->len);
+    return 1;
+}
+
+void ekhtml_parser_destroy(ekhtml_parser_t *ekparser){
+    hnode_t *hn;
+    hscan_t hs;
+
+    hash_scan_begin(&hs, ekparser->startendcb);
+    while((hn = hash_scan_next(&hs))){
+        ekhtml_string_t *key = (ekhtml_string_t *)hnode_getkey(hn);
+        ekhtml_tag_container *cont = hnode_get(hn);
+
+        hash_scan_delete(ekparser->startendcb, hn);
+        free((char *)key->str);
+        free(key);
+        free(cont);
+    }
+    
+    hash_destroy(ekparser->startendcb);
+    ekhtml_parser_starttag_cleanup(ekparser);
+    free(ekparser->buf);
+    free(ekparser);
+}
+
+ekhtml_parser_t *ekhtml_parser_new(void *cbdata){
     ekhtml_parser_t *res;
     
-    res = apr_palloc(pool, sizeof(*res));
-    res->pool               = pool;
+    res = malloc(sizeof(*res));
     res->datacb             = NULL;
-    res->startendcb         = apr_hash_make(pool);
+    res->startendcb         = hash_create(HASHCOUNT_T_MAX, ekhtml_string_comp,
+                                          ekhtml_string_hash);
     res->cbdata             = cbdata;
     res->startcb_unk        = NULL;
     res->endcb_unk          = NULL;
@@ -347,8 +388,6 @@ ekhtml_parser_t *ekhtml_parser_new(apr_pool_t *pool, void *cbdata){
     
     /* Start out with a buffer of 1 block size */
     ekhtml_buffer_grow(res);
-    apr_pool_cleanup_register(pool, res, ekhtml_parser_cleanup, 
-                              apr_pool_cleanup_null);
     return res;
 }
 

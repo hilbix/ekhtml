@@ -27,10 +27,8 @@
 #ifndef EKHTML_DOT_H
 #define EKHTML_DOT_H
 
+#include <stdio.h>
 #include "ekhtml_config.h"
-
-#include "apr.h"
-#include "apr_general.h"
 
 /*! 
  * \file ekhtml.h
@@ -138,7 +136,6 @@ typedef void (*ekhtml_endtag_cb_t)(void *cbdata, ekhtml_string_t *tag);
  * This routine creates a new parser object, with no set callback
  * functions or state.
  *
- * @param pool    An APR pool to use for memory allocation
  * @param cbdata  Callback data to use when invoking callbacks
  *
  * @returns A new ekhtml_parser_t object
@@ -146,7 +143,7 @@ typedef void (*ekhtml_endtag_cb_t)(void *cbdata, ekhtml_string_t *tag);
  * @see ekhtml_parser_cbdata_set()
  */
 
-extern ekhtml_parser_t *ekhtml_parser_new(apr_pool_t *pool, void *cbdata);
+extern ekhtml_parser_t *ekhtml_parser_new(void *cbdata);
 
 /**
  * Set the callback data for the parser.

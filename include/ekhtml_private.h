@@ -31,10 +31,10 @@
 #error This file should only be used by the EKHTML library
 #endif
 
-#include "ekhtml_config.h"
+#include <stdio.h>
 
-#include "apr.h"
-#include "apr_hash.h"
+#include "ekhtml_config.h"
+#include "hash.h"
 
 /* 
  *  Container structures -- since a void * is not guaranteed to store 
@@ -89,19 +89,18 @@ typedef struct {
 } ekhtml_endtag_state;
 
 struct ekhtml_parser_t {
-    apr_pool_t           *pool;        /* Pool the parser is allocated with  */
     ekhtml_data_cb_t      datacb;      /* Callback when data is read         */
-    apr_hash_t           *startendcb;  /* Hash of start & end tag callbacks  */
+    hash_t               *startendcb;  /* Hash of start & end tag callbacks  */
     void                 *cbdata;      /* Data to pass into all callbacks    */
     ekhtml_starttag_cb_t  startcb_unk; /* Unknown starttag callback          */
     ekhtml_endtag_cb_t    endcb_unk;   /* Unknown endtag callback            */
     ekhtml_data_cb_t      commentcb;   /* Comment callback                   */
     
     char                 *buf;         /* malloced buffer holding parse data */
-    apr_size_t            nalloced;    /* # of bytes alloced in 'buf'        */
-    apr_size_t            nbuf;        /* # of bytes used in 'buf'           */
+    size_t                nalloced;    /* # of bytes alloced in 'buf'        */
+    size_t                nbuf;        /* # of bytes used in 'buf'           */
     
-    /* The next two vars are only used in the starttag portion                */
+    /* The next two vars are only used in the starttag portion               */
     ekhtml_starttag_state startstate;  /* State info in start tags           */
     ekhtml_attr_t         *freeattrs;  /* Attribute structures which callers 
                                           can allocate and release at will   */
@@ -126,6 +125,7 @@ extern char *ekhtml_parse_endtag(ekhtml_parser_t *, void **, char *,
 extern char *ekhtml_parse_data(ekhtml_parser_t *, const char *, const char *,
 			       int);
 
+extern void ekhtml_parser_starttag_cleanup(ekhtml_parser_t *);
 extern char *ekhtml_make_upperstr(char *, int);
 
 /*
