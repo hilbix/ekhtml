@@ -1,6 +1,5 @@
 SUBDIRS = src testsuite include docs
 
-if MAINTAINER_MODE
-docs: Doxyfile
+dist-hook:
+	rm -rf docs/html
 	doxygen
-endif
