@@ -1,3 +1,9 @@
+2002-11-10  Jon Travis  <jtravis@p00p.org
+
+	*  Released version 0.3.2.  This release fixes build bugs, mostly
+	related to C++ compilers and extended warnings.  Thanks to
+	Paul Marquis for the reports.
+
 2002-09-25  Jon Travis  <jtravis@p00p.org>
 
 	*  Released version 0.3.1.  This release fixes a bug introduced
