@@ -1,16 +1,16 @@
 #! /bin/bash
 
-for ntags in 1 10 100 1000 10000
+for ntags in 1 10 100 1000
 do
-    for bogus in 1 2
+    for bogus in 0 1
     do
 	python gen_html.py $ntags $bogus > crazy.page
-	for bytesize in 1 8192
+	for bytesize in 1 13 162 983 8192
 	do
-	    echo $ntags $bogus $bytesize
-	    ./tester $bytesize < crazy.page > 1
-	    ./pyparser.py < crazy.page > 2
-	    diff -i -u 1 2 || exit 1
+	    echo numElements=$ntags allowBogusTags=$bogus feedSize=$bytesize
+	    ./tester $bytesize < crazy.page > ek.test
+	    ./pyparser.py < crazy.page > py.test
+	    diff -i -u ek.test py.test || exit 1
 	done
     done
 done
