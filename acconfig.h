@@ -14,10 +14,6 @@
    Leave the following blank line there!!  Autoheader needs it.  */
 
 
-/* Define if on AIX 3.
-   System headers sometimes define this.
-   We just want to avoid a redefinition error message.  */
-
 #undef EKHTML_VER_BUGFIX
 #undef EKHTML_VER_MAJOR
 #undef EKHTML_VER_MINOR
