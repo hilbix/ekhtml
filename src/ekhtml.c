@@ -250,6 +250,61 @@ void ekhtml_parser_feed(ekhtml_parser_t *parser, const char *data,
     }
 }
 
+void ekhtml_parser_datacb_set(ekhtml_parser_t *parser, ekhtml_data_cb_t cb){
+    parser->datacb = cb;
+}
+
+void ekhtml_parser_commentcb_set(ekhtml_parser_t *parser, ekhtml_data_cb_t cb){
+    parser->commentcb = cb;
+}
+
+void ekhtml_parser_cbdata_set(ekhtml_parser_t *parser, void *cbdata){
+    parser->cbdata = cbdata;
+}
+
+void ekhtml_parser_startcb_add(ekhtml_parser_t *parser, const char *tag,
+			       ekhtml_starttag_cb_t cback)
+{
+    if(tag){
+        ekhtml_tag_container *newcont;
+        char *newtag, *cp;
+        
+        if(!parser->startcb)
+            parser->startcb = apr_hash_make(parser->pool);
+        
+        newcont = apr_palloc(parser->pool, sizeof(*newcont));
+        newcont->startfunc = cback;
+        newtag = apr_pstrdup(parser->pool, tag);
+        for(cp=newtag; *cp; cp++)
+            *cp = apr_toupper(*cp);
+        apr_hash_set(parser->startcb, newtag, cp - newtag, newcont);
+    } else {
+        parser->startcb_unk = cback;
+    }
+}
+
+void ekhtml_parser_endcb_add(ekhtml_parser_t *parser, const char *tag,
+			     ekhtml_endtag_cb_t cback)
+{
+    if(tag){
+        ekhtml_tag_container *newcont;
+        char *newtag, *cp;
+        
+        if(!parser->endcb)
+            parser->endcb = apr_hash_make(parser->pool);
+        
+        newcont = apr_palloc(parser->pool, sizeof(*newcont));
+        newcont->endfunc = cback;
+        newtag = apr_pstrdup(parser->pool, tag);
+        for(cp=newtag; *cp; cp++)
+            *cp = apr_toupper(*cp);
+        apr_hash_set(parser->endcb, newtag, cp - newtag, newcont);
+    } else {
+        parser->endcb_unk = cback;
+    }
+}
+
+
 static apr_status_t ekhtml_parser_cleanup(void *cbdata){
     ekhtml_parser_t *ekparser = cbdata;
     
