@@ -1,0 +1,41 @@
+2002-09-12  Jon Travis  <jtravis@covalent.net>
+
+	*  Released into Open Source by Covalent Technologies.  
+
+2001-12-18  Jon Travis  <jtravis@covalent.net>
+
+	*  Remove unneeded pool allocation and destruction from endtag
+	code.  Also cleaned up some of the code in special tag processing.
+
+	*  Further optimized character map lookups.  Instead of 5 tables
+	storing binary values, we store them all in 1 table, and logical
+	AND them with masks to look for the appropriate characters.  
+	The speedup is small but shows up in benchmarks.
+
+2001-03-26  Jon Travis  <jtravis@covalent.net>
+
+	*  Made a few optimizations.  Shaves about 16% off my test cases.
+	YMMV.
+
+2001-03-23  Jon Travis  <jtravis@covalent.net>
+
+	*  Fixed bug with incorrect callback data being sent to the parser
+	callback functions.  Also added a test for the condition.
+
+2001-03-22  Jon Travis  <jtravis@covalent.net>
+
+	*  Revamped pretty much everything.  A redesign in the archetecture
+	allowed us to do some keen stuff:  added the ability comment callbacks,
+	fixed boolean attribute parsing, forgive more brizz0k3n HTML.  This
+	should also be a fairly speedy implementation.
+
+2001-03-19  Jon Travis  <jtravis@covalent.net>
+
+	* Initial version released.  This version still has some
+	issues with poorly written HTML (i.e. <FOO<BAR>hello</BAR></FOO>)
+	which it could handle better.  In addition, attributes with no
+	direct value aren't supported yet.  I.e <FOO BAR>  And finally,
+	I'd like to maintain state inbetween tag calls, to speed it up
+	quite a bit.
+	
+

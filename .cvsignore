@@ -1,0 +1,10 @@
+Makefile
+Makefile.in
+aclocal.m4
+config.cache
+config.in
+config.log
+config.status
+configure
+libtool
+stamp-h.in

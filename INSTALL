@@ -1,0 +1,7 @@
+
+Compiling ekhtml.
+
+./autogen.sh --with-apr=/path/to/apr
+
+Running make will result in a shared library in src/.libs.
+

@@ -1,0 +1,153 @@
+/*
+ * Copyright (c) 2002, Jon Travis
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+
+#include "apr.h"
+#include "apr_general.h"
+
+#include "ekhtml.h"
+
+#define MAGIC_DOODIE 0xf9d33bc1
+
+typedef struct {
+    unsigned int n_starttags;
+    unsigned int n_endtags;
+    unsigned int n_comments;
+    unsigned int n_data;
+    unsigned int magic_doodie;
+    unsigned int only_parse;
+} tester_cbdata;
+
+static void handle_starttag(void *cbdata, const char *tag, apr_size_t ntag, 
+			    ekhtml_attr_t *attrs)
+{
+    ekhtml_attr_t *attr;
+    tester_cbdata *tdata = cbdata;
+    
+    assert(tdata->magic_doodie == MAGIC_DOODIE);
+    tdata->n_starttags++;
+    if(tdata->only_parse)
+        return;
+    
+    printf("START: \"%.*s\"\n", ntag, tag);
+    for(attr=attrs; attr; attr=attr->next) {
+        printf("ATTRIBUTE: \"%.*s\" = ", attr->namelen, attr->name);
+        if(attr->val)
+            printf("\"%.*s\"\n", attr->vallen, attr->val);
+        else
+            printf("\"%.*s\"\n", attr->namelen, attr->name);
+    }
+}
+
+static void handle_endtag(void *cbdata, const char *tag, apr_size_t ntag){
+    tester_cbdata *tdata = cbdata;
+    
+    assert(tdata->magic_doodie == MAGIC_DOODIE);
+    tdata->n_endtags++;
+    if(tdata->only_parse)
+        return;
+    
+    printf("END: \"%.*s\"\n", ntag, tag);
+}
+
+static void handle_comment(void *cbdata, const char *data, apr_size_t len){
+    tester_cbdata *tdata = cbdata;
+    
+    assert(tdata->magic_doodie == MAGIC_DOODIE);
+    tdata->n_comments++;
+    if(tdata->only_parse)
+        return;
+    
+    printf("COMMENT: \"%.*s\"\n", len, data);
+}
+
+static void handle_data(void *cbdata, const char *data, apr_size_t len){
+    tester_cbdata *tdata = cbdata;
+    
+    assert(tdata->magic_doodie == MAGIC_DOODIE);
+    tdata->n_data++;
+    if(tdata->only_parse)
+        return;
+    
+    fwrite(data, len, 1, stdout);
+}
+
+int main(int argc, char *argv[]){
+    tester_cbdata cbdata;
+    ekhtml_parser_t *ekparser;
+    apr_pool_t *p;
+    char *buf;
+    size_t nbuf;
+    int feedsize;
+    
+    if(argc < 2){
+        fprintf(stderr, "Syntax: %s <feedsize> [1|0 (to print debug)]\n", 
+                argv[0]);
+        return -1;
+    }
+    
+    feedsize = atoi(argv[1]);
+    
+    apr_initialize();
+    apr_pool_create(&p, NULL);
+    ekparser = ekhtml_parser_new(p, NULL);
+    
+    cbdata.n_starttags  = 0;
+    cbdata.n_endtags    = 0;
+    cbdata.n_comments   = 0;
+    cbdata.n_data       = 0;
+    cbdata.magic_doodie = MAGIC_DOODIE;
+    cbdata.only_parse   = argc == 3;
+    
+    ekhtml_parser_datacb_set(ekparser, handle_data);
+    ekhtml_parser_commentcb_set(ekparser, handle_comment);
+    ekhtml_parser_startcb_add(ekparser, NULL, handle_starttag);
+    ekhtml_parser_endcb_add(ekparser, NULL, handle_endtag);
+    ekhtml_parser_cbdata_set(ekparser, &cbdata);
+    buf = apr_pcalloc(p, feedsize);
+    
+    while((nbuf = fread(buf, 1, feedsize, stdin))){
+        ekhtml_parser_feed(ekparser, buf, nbuf);
+        ekhtml_parser_flush(ekparser, 0);
+    }
+    ekhtml_parser_flush(ekparser, 1);
+    apr_pool_destroy(p);
+    
+    
+    if(argc == 3){
+        fprintf(stderr, 
+                "# starttags: %u\n"
+                "# endtags:   %u\n"
+                "# comments:  %u\n"
+                "# data:      %u\n", cbdata.n_starttags,
+                cbdata.n_endtags, cbdata.n_comments, cbdata.n_data);
+    }
+    
+    return 0;
+}

@@ -1,0 +1,8 @@
+.deps
+.libs
+Makefile
+Makefile.in
+ekhtml_mktables
+ekhtml_tables.h
+libekhtml.la
+*.lo

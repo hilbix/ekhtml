@@ -1,0 +1,13 @@
+AC_INIT(src/ekhtml.c)
+AM_INIT_AUTOMAKE(ekhtml, 0.0.1)
+AM_CONFIG_HEADER(include/ekhtml_config.h:config.in)
+
+AC_PROG_CC
+AM_PROG_LIBTOOL
+
+EK_CHECK_APR
+EK_MAINTAINER_MODE
+
+AC_SUBST(CFLAGS)
+
+AC_OUTPUT(Makefile testsuite/Makefile src/Makefile)
