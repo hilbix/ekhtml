@@ -23,9 +23,6 @@
   tag that is requested.  That way callbacks won't have to strcmp, and
   can just use the integer.
 
-- Attribute values should also have an associated quote type, so that
-  the callbacks can figure out which one was used.
-
 - hash.c:63 has a problem.  The hash bits must be computed.  This
   can probably be migrated to a configure macro.  
   Noted by Tadhg O'Meara
