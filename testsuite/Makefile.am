@@ -1,14 +1,6 @@
-APR_DIR=@APR_DIR@
-APR_CFLAGS=@APR_CFLAGS@
-APR_EXTRA_LIBS=@APR_EXTRA_LIBS@
-
-CFLAGS += $(APR_CFLAGS)
-LIBS += $(APR_EXTRA_LIBS)
 bin_PROGRAMS = tester
 
-STANDARD_LDADDS = $(top_srcdir)/src/libekhtml.la \
-		$(APR_DIR)/libapr.la \
-		$(APR_EXTRA_LIBS)
+STANDARD_LDADDS = $(top_srcdir)/src/libekhtml.la $(APR_LDFLAGS)
 
 tester_SOURCES = tester.c
 tester_LDADD   = $(STANDARD_LDADDS)
