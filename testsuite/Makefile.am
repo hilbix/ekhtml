@@ -12,7 +12,8 @@ EXTRA_DIST = \
 noinst_PROGRAMS = tester
 
 tester_SOURCES      = tester.c
-tester_LDADD        = $(EKHTML_LIB) $(APR_LDFLAGS)
+tester_LDADD        = $(EKHTML_LIB) 
+tester_LDFLAGS      = -static
 tester_DEPENDENCIES = $(EKHTML_LIB)
 
 $(EKHTML_LIB):
