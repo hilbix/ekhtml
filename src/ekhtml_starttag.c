@@ -111,8 +111,8 @@ static void handle_starttag(ekhtml_parser_t *parser, char *curp,
     char *upper_str;
 
     upper_str = ekhtml_make_upperstr(curp + 1, taglen);
-    if(parser->startcb && 
-       (container = apr_hash_get(parser->startcb, upper_str, taglen)))
+    if((container = apr_hash_get(parser->startendcb, upper_str, taglen)) &&
+       container->startfunc)
     {
         cback = container->startfunc;
     } else if(parser->startcb_unk)

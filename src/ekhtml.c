@@ -265,46 +265,52 @@ void ekhtml_parser_cbdata_set(ekhtml_parser_t *parser, void *cbdata){
     parser->cbdata = cbdata;
 }
 
-void ekhtml_parser_startcb_add(ekhtml_parser_t *parser, const char *tag,
-			       ekhtml_starttag_cb_t cback)
+static void 
+ekhtml_parser_startendcb_add(ekhtml_parser_t *parser, const char *tag,
+                             ekhtml_starttag_cb_t startcb, 
+                             ekhtml_endtag_cb_t endcb,
+                             int isStart)
 {
     if(tag){
-        ekhtml_tag_container *newcont;
+        ekhtml_tag_container *cont;
         char *newtag, *cp;
         
-        if(!parser->startcb)
-            parser->startcb = apr_hash_make(parser->pool);
-        
-        newcont = apr_palloc(parser->pool, sizeof(*newcont));
-        newcont->startfunc = cback;
         newtag = apr_pstrdup(parser->pool, tag);
         for(cp=newtag; *cp; cp++)
             *cp = apr_toupper(*cp);
-        apr_hash_set(parser->startcb, newtag, cp - newtag, newcont);
+        
+        /* First see if the container already exists */
+        if((cont = apr_hash_get(parser->startendcb, newtag, cp - newtag))){
+            if(isStart)
+                cont->startfunc = startcb;
+            else
+                cont->endfunc = endcb;
+        } else {
+            cont = apr_palloc(parser->pool, sizeof(*cont));
+            if(isStart)
+                cont->startfunc = startcb;
+            else
+                cont->endfunc = endcb;
+            apr_hash_set(parser->startendcb, newtag, cp - newtag, cont);
+        }
     } else {
-        parser->startcb_unk = cback;
+        if(isStart)
+            parser->startcb_unk = startcb;
+        else
+            parser->endcb_unk = endcb;
     }
+}
+
+void ekhtml_parser_startcb_add(ekhtml_parser_t *parser, const char *tag,
+			       ekhtml_starttag_cb_t cback)
+{
+    ekhtml_parser_startendcb_add(parser, tag, cback, NULL, 1);
 }
 
 void ekhtml_parser_endcb_add(ekhtml_parser_t *parser, const char *tag,
 			     ekhtml_endtag_cb_t cback)
 {
-    if(tag){
-        ekhtml_tag_container *newcont;
-        char *newtag, *cp;
-        
-        if(!parser->endcb)
-            parser->endcb = apr_hash_make(parser->pool);
-        
-        newcont = apr_palloc(parser->pool, sizeof(*newcont));
-        newcont->endfunc = cback;
-        newtag = apr_pstrdup(parser->pool, tag);
-        for(cp=newtag; *cp; cp++)
-            *cp = apr_toupper(*cp);
-        apr_hash_set(parser->endcb, newtag, cp - newtag, newcont);
-    } else {
-        parser->endcb_unk = cback;
-    }
+    ekhtml_parser_startendcb_add(parser, tag, NULL, cback, 0);
 }
 
 
@@ -321,8 +327,7 @@ ekhtml_parser_t *ekhtml_parser_new(apr_pool_t *pool, void *cbdata){
     res = apr_palloc(pool, sizeof(*res));
     res->pool               = pool;
     res->datacb             = NULL;
-    res->startcb            = NULL;
-    res->endcb              = NULL;
+    res->startendcb         = apr_hash_make(pool);
     res->cbdata             = cbdata;
     res->startcb_unk        = NULL;
     res->endcb_unk          = NULL;

@@ -46,8 +46,8 @@
 static void handle_endtag(ekhtml_parser_t *parser, ekhtml_string_t *str){
     ekhtml_tag_container *container;
     
-    if(parser->endcb &&
-       (container = apr_hash_get(parser->endcb, str->str, str->len)))
+    if((container = apr_hash_get(parser->startendcb, str->str, str->len)) &&
+       container->endfunc)
     {
         container->endfunc(parser->cbdata, str);
     } else if(parser->endcb_unk)

@@ -91,8 +91,7 @@ typedef struct {
 struct ekhtml_parser_t {
     apr_pool_t           *pool;        /* Pool the parser is allocated with  */
     ekhtml_data_cb_t      datacb;      /* Callback when data is read         */
-    apr_hash_t           *startcb;     /* Hash of start tag callbacks        */
-    apr_hash_t           *endcb;       /* Hash of end tag callbacks          */
+    apr_hash_t           *startendcb;  /* Hash of start & end tag callbacks  */
     void                 *cbdata;      /* Data to pass into all callbacks    */
     ekhtml_starttag_cb_t  startcb_unk; /* Unknown starttag callback          */
     ekhtml_endtag_cb_t    endcb_unk;   /* Unknown endtag callback            */
