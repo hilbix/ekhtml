@@ -1,10 +1,15 @@
 2004-06-12  Jon Travis  <jtravis@p00p.org>
+    
+	* Fixed memory leak when destroying ekhtml instance, as reported
+	by osnat on SourceForge
 
-    * Allow comma, semicolon, and pipe as valid characters in 
-      unquoted attribute values.  Fix submitted by Josh 
-      Mankoff?  (jmmankoff)
+2004-06-12  Jon Travis  <jtravis@p00p.org>
 
-    * Fixed autogen to use the correct libtoolize on OSX
+	* Allow comma, semicolon, and pipe as valid characters in 
+	unquoted attribute values.  Fix submitted by Josh 
+	Mankoff?  (jmmankoff)
+	
+	* Fixed autogen to use the correct libtoolize on OSX
 
 2002-12-12  Jon Travis  <jtravis@p00p.org>
 

@@ -357,7 +357,7 @@ void ekhtml_parser_destroy(ekhtml_parser_t *ekparser){
         ekhtml_string_t *key = (ekhtml_string_t *)hnode_getkey(hn);
         ekhtml_tag_container *cont = hnode_get(hn);
 
-        hash_scan_delete(ekparser->startendcb, hn);
+        hash_scan_delfree(ekparser->startendcb, hn);
         free((char *)key->str);
         free(key);
         free(cont);
