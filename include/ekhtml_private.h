@@ -41,7 +41,7 @@
  *  the function pointer correctly, we make a small container for them 
  */
 
-typedef union {
+typedef struct {
     ekhtml_starttag_cb_t startfunc;
     ekhtml_endtag_cb_t   endfunc;
 } ekhtml_tag_container;
