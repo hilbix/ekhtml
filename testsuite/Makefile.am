@@ -19,7 +19,7 @@ tester_DEPENDENCIES = $(EKHTML_LIB)
 $(EKHTML_LIB):
 	cd $(top_srcdir)/src && $(MAKE)
 
-TESTS = test_basic.sh test_crazypage.sh
+TESTS = test_basic.sh test_crazypage.sh test_bogus_feedsize.sh
 
 dist-hook:
 	rm -rf `find $(distdir)/tstpages -name CVS`
