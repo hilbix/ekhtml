@@ -20,4 +20,10 @@ LIBS="$LIBS $APR_LIBS"
 
 AC_SUBST(CFLAGS)
 
-AC_OUTPUT(Doxyfile Makefile testsuite/Makefile src/Makefile)
+AC_OUTPUT(
+        Doxyfile 
+        Makefile 
+        include/Makefile
+        src/Makefile
+        testsuite/Makefile 
+)

@@ -1,12 +1,24 @@
-bin_PROGRAMS = tester
+EKHTML_LIB = $(top_srcdir)/src/libekhtml.la
 
-STANDARD_LDADDS = $(top_srcdir)/src/libekhtml.la $(APR_LDFLAGS)
+EXTRA_DIST = \
+	ek_sgmllib.py \
+	gen_html.py \
+	plparser.pl \
+	pyparser.py \
+	test_basic.sh \
+	test_crazypage.sh \
+	tstpages
 
-tester_SOURCES = tester.c
-tester_LDADD   = $(STANDARD_LDADDS)
-tester_DEPENDENCIES = $(top_srcdir)/src/libekhtml.la
+noinst_PROGRAMS = tester
 
-$(top_srcdir)/src/libekhtml.la:
+tester_SOURCES      = tester.c
+tester_LDADD        = $(EKHTML_LIB) $(APR_LDFLAGS)
+tester_DEPENDENCIES = $(EKHTML_LIB)
+
+$(EKHTML_LIB):
 	cd $(top_srcdir)/src && $(MAKE)
 
 TESTS = test_basic.sh test_crazypage.sh
+
+dist-hook:
+	rm -rf `find $(distdir)/tstpages -name CVS`
