@@ -33,6 +33,7 @@
  * followed by a '>'.  
  */
 
+#include <string.h>
 #include <assert.h>
 
 #include "ekhtml.h"
@@ -61,21 +62,32 @@ char *ekhtml_parse_comment(ekhtml_parser_t *parser, void **state_data,
     
     workp = curp + *offset;
     while(workp != endp){
-        if(comstate->dashes != 2){  /* Still on the quest for the double dash*/
-            for(;workp != endp;workp++){
-                if(*workp == '-'){
-                    comstate->lastdash = workp - curp;
-                    if(++comstate->dashes == 2){
-                        workp++;
-                        break;
-                    }
-                } else
-                    comstate->dashes = 0;
+        if(comstate->dashes == 0){  /* Still on the quest for the double dash*/
+            /* XXX -- Searching for '--' could be faster, doing 
+               multibyte searching, or something similar */
+            for(; workp < endp - 1; workp += 2){
+                if(*workp == '-')
+                    break;
             }
-            if(workp == endp){
-                *offset = workp - curp;  /* Save offset of data processed */
+
+            if(!(workp < endp - 1)){
+                *offset = endp - 1 - curp;
                 return NULL;
             }
+
+            if((*(workp - 1) == '-') && 
+               (workp - curp) > (sizeof("<!--") - 1))
+            {
+                comstate->lastdash = workp - 1 - curp;
+                comstate->dashes = 1;
+            } else if(*(workp + 1) == '-'){
+                comstate->lastdash = workp - curp;
+                comstate->dashes = 1;
+            } else {
+                /* Else, a lone dash -- how sad, lonely dash.. ;-) */
+            }
+            workp++;
+            continue;
         }
     
         /* At this point we have the double dash.  Search through whitespace */
@@ -91,13 +103,14 @@ char *ekhtml_parse_comment(ekhtml_parser_t *parser, void **state_data,
                 ekhtml_string_t str;
 
                 str.str = curp + 4;
-                str.len = comstate->lastdash - 1 - 4;
+                str.len = comstate->lastdash - 4;
                 parser->commentcb(parser->cbdata, &str);
             }
             *state_data = NULL;
             return (char *)workp + 1;
+        } else {
+            comstate->dashes = 0;
         }
-        comstate->dashes = (*workp == '-');
     }
     
     *offset = workp - curp;
