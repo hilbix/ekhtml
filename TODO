@@ -22,3 +22,6 @@
 - Maybe make starttag registering return an integer, representing the
   tag that is requested.  That way callbacks won't have to strcmp, and
   can just use the integer.
+
+- Attribute values should also have an associated quote type, so that
+  the callbacks can figure out which one was used.
