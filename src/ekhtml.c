@@ -274,24 +274,30 @@ ekhtml_parser_startendcb_add(ekhtml_parser_t *parser, const char *tag,
     if(tag){
         ekhtml_tag_container *cont;
         char *newtag, *cp;
-        
+        unsigned int taglen;
+
         newtag = apr_pstrdup(parser->pool, tag);
         for(cp=newtag; *cp; cp++)
             *cp = apr_toupper(*cp);
         
+        taglen = cp - newtag;
+
         /* First see if the container already exists */
-        if((cont = apr_hash_get(parser->startendcb, newtag, cp - newtag))){
+        if((cont = apr_hash_get(parser->startendcb, newtag, taglen))){
             if(isStart)
                 cont->startfunc = startcb;
             else
                 cont->endfunc = endcb;
         } else {
             cont = apr_palloc(parser->pool, sizeof(*cont));
-            if(isStart)
+            if(isStart){
                 cont->startfunc = startcb;
-            else
-                cont->endfunc = endcb;
-            apr_hash_set(parser->startendcb, newtag, cp - newtag, cont);
+                cont->endfunc   = NULL;
+            } else {
+                cont->startfunc = NULL;
+                cont->endfunc   = endcb;
+            }
+            apr_hash_set(parser->startendcb, newtag, taglen, cont);
         }
     } else {
         if(isStart)
