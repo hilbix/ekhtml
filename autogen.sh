@@ -9,6 +9,13 @@ PROJECT="El-Kabong HTML"
 TEST_TYPE=-f
 FILE=src/ekhtml.c
 
+if [ `uname -s` = "Darwin" ]; then
+    LIBTOOLIZE=glibtoolize
+else
+    LIBTOOLIZE=libtoolize
+fi
+
+
 DIE=0
 
 (autoconf --version) < /dev/null > /dev/null 2>&1 || {
@@ -47,7 +54,7 @@ esac
 
 aclocal -I macros
 
-libtoolize --force
+$LIBTOOLIZE --force
 (autoheader --version)  < /dev/null > /dev/null 2>&1 && autoheader
 automake -a $am_opt
 autoconf
