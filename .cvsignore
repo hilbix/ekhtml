@@ -7,6 +7,5 @@ config.in
 config.log
 config.status
 configure
-docs
 libtool
 stamp-h.in

@@ -103,7 +103,7 @@ typedef void (*ekhtml_data_cb_t)(void *cbdata, const char *data,
  * @param attrs  Attributes of the tag.  
  *              
  * @see ekhtml_parser_cbdata_set()
- * @see ekhtml_parser_startcb_set()
+ * @see ekhtml_parser_startcb_add()
  */
 
 typedef void (*ekhtml_starttag_cb_t)(void *cbdata, const char *tag, 
@@ -121,7 +121,7 @@ typedef void (*ekhtml_starttag_cb_t)(void *cbdata, const char *tag,
  * @param ntag   The length of the data contained in 'tag'
  *              
  * @see ekhtml_parser_cbdata_set()
- * @see ekhtml_parser_endcb_set()
+ * @see ekhtml_parser_endcb_add()
  */
 
 typedef void (*ekhtml_endtag_cb_t)(void *cbdata, const char *tag, 
