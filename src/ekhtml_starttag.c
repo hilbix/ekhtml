@@ -125,7 +125,7 @@ static void handle_starttag(ekhtml_parser_t *parser, char *curp,
        pointer values */
     for(attr=sstate->attrs;attr;attr=attr->next){
         attr->name.str = curp + (int)attr->name.str;
-        if(attr->val.str)
+        if(!attr->isBoolean)
             attr->val.str = curp + (int)attr->val.str;
     }
     
@@ -215,6 +215,7 @@ char *ekhtml_parse_starttag(ekhtml_parser_t *parser, void **state_data,
                 attr->name.len      = 0;     /* Will get assigned later */
                 attr->val.str       = NULL;
                 attr->val.len       = 0;
+                attr->isBoolean     = 1;
                 attr->next          = NULL;
                 startstate->mode    = EKHTML_STMODE_GETNAME;
                 startstate->curattr = attr;
@@ -281,6 +282,7 @@ char *ekhtml_parse_starttag(ekhtml_parser_t *parser, void **state_data,
             if(workp == endp)
                 break;
             
+            startstate->curattr->isBoolean = 0;
             startstate->curattr->val.str = (char *)NULL + (workp - curp);
             startstate->quote        = '\0';
             if(*workp == '"' || *workp == '\''){

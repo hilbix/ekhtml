@@ -63,9 +63,7 @@ typedef struct ekhtml_string_t {
 typedef struct ekhtml_attr_t {
     ekhtml_string_t       name;       /**< Name of the attribute             */
     ekhtml_string_t       val;        /**< Value of the attribute            */
-#if 0
     unsigned int          isBoolean;  /**< True of the attribute is boolean  */
-#endif
     struct ekhtml_attr_t *next;  /**< Pointer to next attribute in the list  */
 } ekhtml_attr_t;
 

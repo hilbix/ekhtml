@@ -58,7 +58,7 @@ static void handle_starttag(void *cbdata, ekhtml_string_t *tag,
     printf("START: \"%.*s\"\n", tag->len, tag->str);
     for(attr=attrs; attr; attr=attr->next) {
         printf("ATTRIBUTE: \"%.*s\" = ", attr->name.len, attr->name.str);
-        if(attr->val.str)
+        if(!attr->isBoolean)
             printf("\"%.*s\"\n", attr->val.len, attr->val.str);
         else
             printf("\"%.*s\"\n", attr->name.len, attr->name.str);
