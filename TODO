@@ -16,3 +16,6 @@
 - Put some goto's in the starttag parsing to immediately jump between
   some of the state transitions.
 
+- Maybe make starttag registering return an integer, representing the
+  tag that is requested.  That way callbacks won't have to strcmp, and
+  can just use the integer.
