@@ -1,28 +1,12 @@
 BUILDING:
 
-    Requirements:
-
-        APR - The Apache Portable Runtime library.
-              You can currently only obtain this in source format from
-              apache.org.  
-
-              $ CVSROOT=:pserver:anoncvs@cvs.apache.org:/home/cvspublic
-              $ export CVSROOT
-              $ cvs login
-                (password is "anoncvs")
-              $ cvs co apr
-
-              Read 'apr/README.dev' for information on how to build the
-              library.
-
-
     To build EL-Kabong from a tarball, run:
 
-              $ ./configure --with-apr=/path/to/apr && make
+              $ ./configure && make
 
     To build EL-Kabong from CVS, run:
 
-              $ ./autogen.sh --with-apr=/path/to/apr && make
+              $ ./autogen.sh && make
 
    
 

@@ -2,7 +2,7 @@ ekhtml: The El-Kabong HTML parser
 
 
 SUMMARY:
-    El-Kabong: A speedy, yet forgiving, APR-centric, SAX-stylee HTML parser.  
+    El-Kabong: A speedy, yet forgiving, SAX-stylee HTML parser.  
 
 
 PROJECT INFORMATION:
