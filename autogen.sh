@@ -8,7 +8,6 @@ cd $srcdir
 PROJECT="El-Kabong HTML"
 TEST_TYPE=-f
 FILE=src/ekhtml.c
-COVL_MACROS=macros
 
 DIE=0
 
@@ -37,11 +36,6 @@ test $TEST_TYPE $FILE || {
 	exit 1
 }
 
-test -d $COVL_MACROS || {
-	echo "$COVL_MACROS must exist to build $PROJECT"
-	exit 1
-}
-
 if test -z "$*"; then
 	echo "I am going to run ./configure with no arguments - if you wish "
         echo "to pass any to it, please specify them on the $0 command line."
@@ -51,7 +45,7 @@ case $CC in
 *xlc | *xlc\ * | *lcc | *lcc\ *) am_opt=--include-deps;;
 esac
 
-aclocal -I $COVL_MACROS
+aclocal -I macros
 
 libtoolize --force
 (autoheader --version)  < /dev/null > /dev/null 2>&1 && autoheader
