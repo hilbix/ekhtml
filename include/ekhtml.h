@@ -105,7 +105,8 @@ typedef void (*ekhtml_data_cb_t)(void *cbdata, ekhtml_string_t *data);
  * The tag passed into the callback will be "FOO" with a length of 3.
  *
  * @param cbdata Callback data, as previously set by ekhtml_parser_cbdata_set
- * @param tag    A pointer to tag name.
+ * @param tag    A pointer to tag name.  This is a traditional NUL terminated
+ *               string.
  * @param attrs  Attributes of the tag.  
  *              
  * @see ekhtml_parser_cbdata_set()
@@ -123,8 +124,9 @@ typedef void (*ekhtml_starttag_cb_t)(void *cbdata, ekhtml_string_t *tag,
  * The tag passed into the callback will be "FOO" with a length of 3.
  *
  * @param cbdata Callback data, as previously set by ekhtml_parser_cbdata_set
- * @param tag    A pointer to the tag name.
- *              
+ * @param tag    A pointer to tag name.  This is a traditional NUL terminated
+ *               string.
+ *
  * @see ekhtml_parser_cbdata_set()
  * @see ekhtml_parser_endcb_add()
  */
