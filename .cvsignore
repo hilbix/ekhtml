@@ -1,3 +1,4 @@
+Doxyfile
 Makefile
 Makefile.in
 aclocal.m4
@@ -6,5 +7,6 @@ config.in
 config.log
 config.status
 configure
+docs
 libtool
 stamp-h.in

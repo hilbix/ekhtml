@@ -30,45 +30,216 @@
 #include "apr.h"
 #include "apr_general.h"
 
+/*! 
+ * \file ekhtml.h
+ * \brief Main El-Kabong header file.
+ *
+ * This header defines everything that a program should need to use
+ * the El-Kabong library.
+ */
+
+/**
+ * Attribute object, passed into callbacks.  
+ * When ekhtml parses tags containing key/value attributes, it will pass 
+ * this structure representing those values into the callbacks.  Note, for 
+ * speed reasons, things such as the 'name' and 'value' fields are not 
+ * terminated with '\0', and therefore have an associated length 
+ * field (namelen, vallen).
+ */
+
 typedef struct ekhtml_attr_t {
-    const char *name;           /* Name of the attribute                  */
-    apr_size_t namelen;         /* Length of 'name'                       */
+    const char *name;           /**< Name of the attribute                 */
+    apr_size_t namelen;         /**< Length of `name`                      */
     
-    /* Value data is NULL and unused if the attribute is a boolean value  */
-    const char *val;            /* Value of the attribute (if !boolean)   */
-    apr_size_t vallen;          /* Value length                           */
-    struct ekhtml_attr_t *next; /* Pointer to next attribute in the list  */
+    const char *val;            /**< Value of the attribute.  If the 
+                                   attribute is boolean (i.e. <FOO BAR>), 
+                                   then this value will be NULL            */
+    apr_size_t vallen;          /**< Length of `val`                       */
+    struct ekhtml_attr_t *next; /**< Pointer to next attribute in the list */
 } ekhtml_attr_t;
 
 /*
  * Typedefs for function callback types
  */
 
-typedef struct ekhtml_parser_t ekhtml_parser_t;
+/**
+ * The parser object.  
+ * The parser object holds state information, such as which callbacks 
+ * to invoke when reading tags, how much data is being processed, etc.
+ */
+
+typedef struct ekhtml_parser_t ekhtml_parser_t; 
+
+/**
+ * Callback for simple data.
+ * Callback functions of this form are used to process data which is
+ * not part of a start or end tag.  This callback may also be used
+ * to process the body of comment tags.
+ * 
+ * I.e. <FOO>data_to_process</FOO>  
+ * The data passed into the callback function will be "data_to_process"
+ *
+ * @param cbdata Callback data, as previously set by ekhtml_parser_cbdata_set
+ * @param data   A pointer to the non-zero terminated data in-between tags.
+ * @param ndata  Length of the data contained in `data`
+ *              
+ * @see ekhtml_parser_cbdata_set()
+ * @see ekhtml_parser_datacb_set()
+ */
 
 typedef void (*ekhtml_data_cb_t)(void *cbdata, const char *data, 
 				 apr_size_t ndata);
+
+/**
+ * Callback for start tags.
+ * Callback functions of this form are used to process start tags.
+ * 
+ * I.e. <FOO>data_to_process</FOO>  
+ * The tag passed into the callback will be "FOO" with a length of 3.
+ *
+ * @param cbdata Callback data, as previously set by ekhtml_parser_cbdata_set
+ * @param tag    A pointer to the non-zero terminated tag name.
+ * @param ntag   The length of the data contained in 'tag'
+ * @param attrs  Attributes of the tag.  
+ *              
+ * @see ekhtml_parser_cbdata_set()
+ * @see ekhtml_parser_startcb_set()
+ */
+
 typedef void (*ekhtml_starttag_cb_t)(void *cbdata, const char *tag, 
 				     apr_size_t ntag, ekhtml_attr_t *attrs);
+
+/**
+ * Callback for end tags.
+ * Callback functions of this form are used to process end tags.
+ * 
+ * I.e. <FOO>data_to_process</FOO>  
+ * The tag passed into the callback will be "FOO" with a length of 3.
+ *
+ * @param cbdata Callback data, as previously set by ekhtml_parser_cbdata_set
+ * @param tag    A pointer to the non-zero terminated tag name.
+ * @param ntag   The length of the data contained in 'tag'
+ *              
+ * @see ekhtml_parser_cbdata_set()
+ * @see ekhtml_parser_endcb_set()
+ */
+
 typedef void (*ekhtml_endtag_cb_t)(void *cbdata, const char *tag, 
 				   apr_size_t ntag);
 
-/*
- * Protoize
+/**
+ * Create a new parser object.
+ * This routine creates a new parser object, with no set callback
+ * functions or state.
+ *
+ * @param pool    An APR pool to use for memory allocation
+ * @param cbdata  Callback data to use when invoking callbacks
+ *
+ * @returns A new ekhtml_parser_t object
+ *
+ * @see ekhtml_parser_cbdata_set()
  */
 
-extern ekhtml_parser_t *ekhtml_parser_new(apr_pool_t *, void *);
-extern void ekhtml_parser_cbdata_set(ekhtml_parser_t *, void *);
-extern void ekhtml_parser_datacb_set(ekhtml_parser_t *, ekhtml_data_cb_t );
-extern void ekhtml_parser_commentcb_set(ekhtml_parser_t *, ekhtml_data_cb_t );
-extern void ekhtml_parser_feed(ekhtml_parser_t *, const char *, apr_size_t);
-extern int ekhtml_parser_flush(ekhtml_parser_t *, int);
-extern void ekhtml_parser_startcb_add(ekhtml_parser_t *, const char *,
-				      ekhtml_starttag_cb_t );
-extern void ekhtml_parser_endcb_add(ekhtml_parser_t *, const char *,
-				    ekhtml_endtag_cb_t);
+extern ekhtml_parser_t *ekhtml_parser_new(apr_pool_t *pool, void *cbdata);
 
-/* EKHTML_BLOCKSIZE = # of blocks to allocate per chunk */
-#define EKHTML_BLOCKSIZE (1024 * 4)  
+/**
+ * Set the callback data for the parser.
+ * This routine sets the callback data which is passed to set callbacks.
+ *
+ * @param parser  Parser to set the callback data for
+ * @param cbdata  Callback data the parser should use to pass to callbacks
+ */
+
+extern void ekhtml_parser_cbdata_set(ekhtml_parser_t *parser, void *cbdata);
+
+/**
+ * Set the parser's data callback.
+ * This routine sets the callback which should be invoked for
+ * non-tagged data.
+ *
+ * @param parser  Parser to set the callback for
+ * @param cb      Callback to invoke when processing non-tagged data
+ */
+
+extern void ekhtml_parser_datacb_set(ekhtml_parser_t *parser, 
+                                     ekhtml_data_cb_t cb);
+
+/**
+ * Set the parser's comment callback.
+ * This routine sets the callback which should be invoked when 
+ * the parser processes a comment.
+ *
+ * @param parser  Parser to set the callback for
+ * @param cb      Callback to invoke when processing a comment
+ */
+
+extern void ekhtml_parser_commentcb_set(ekhtml_parser_t *parser, 
+                                        ekhtml_data_cb_t cb);
+
+/**
+ * Feed data for the parser to process.
+ * Feed data into the HTML parser.  This routine will fill up the 
+ * internal buffer until it can go no more, then flush the data 
+ * and refill.  If there is more data that is required than the 
+ * internal buffer can hold, it will be resized
+ *
+ * @param parser  Parser to feed data to
+ * @param data    Data to feed to the parser
+ * @param ndata   Number of bytes in `data`
+ */
+
+extern void ekhtml_parser_feed(ekhtml_parser_t *parser, 
+                               const char *data, apr_size_t ndata);
+
+/**
+ * Flush the parser innards.
+ * When this function is invoked, the parser will flush all data that is
+ * currently held, and any remaining state is saved.  All data which is
+ * processed is removed from the parser, and the internal buffer is
+ * reshuffled.
+ *
+ * @param parser   Parser to flush
+ * @param flushall If true, will flush all data, even if tags are not
+ *                 complete (i.e. "<FO")
+ * @returns 1 if action was taken (i.e. bytes were processed and the
+ *          internal buffer was reshuffled) else 0
+ */
+
+extern int ekhtml_parser_flush(ekhtml_parser_t *parser, int flushall);
+
+/**
+ * Add a callback for a start tag.
+ * This routine sets the callback which should be invoked when 
+ * the parser processes a start tag.  Both specific tags, and
+ * unknown tags can be used with this method.
+ *
+ * @param parser  Parser to set the callback for
+ * @param tag     Name of the tag to call `cb` for.  If `tag` is NULL, then
+ *                any tags which are unknown to the parser will be sent
+ *                to the callback specified by `cb`.
+ * @param cb      Callback to invoke
+ */
+
+extern void ekhtml_parser_startcb_add(ekhtml_parser_t *parser, const char *tag,
+				      ekhtml_starttag_cb_t cb);
+
+/**
+ * Add a callback for an end tag.
+ * This routine sets the callback which should be invoked when 
+ * the parser processes an end tag.  Both specific tags, and
+ * unknown tags can be used with this method.
+ *
+ * @param parser  Parser to set the callback for
+ * @param tag     Name of the tag to call `cb` for.  If `tag` is NULL, then
+ *                any tags which are unknown to the parser will be sent
+ *                to the callback specified by `cb`.
+ * @param cb      Callback to invoke
+ */
+
+extern void ekhtml_parser_endcb_add(ekhtml_parser_t *parser, const char *tag,
+				    ekhtml_endtag_cb_t cb);
+
+/** EKHTML_BLOCKSIZE = # of blocks to allocate per chunk */
+#define EKHTML_BLOCKSIZE (1024 * 4)
 
 #endif

@@ -53,49 +53,17 @@ char *ekhtml_make_upperstr(char *buf, int len){
 }
 
 
-/*
- * ekhtml_parser_datacb_set:  Set the data handler callback for the parser.
- *
- * Arguments:       parser = Parser to set the callback for
- *                  cb     = New callback
- */
-
 void ekhtml_parser_datacb_set(ekhtml_parser_t *parser, ekhtml_data_cb_t cb){
     parser->datacb = cb;
 }
-
-/*
- * ekhtml_parser_commentcb_set:  Set the comment handler callback.
- *
- * Arguments:       parser = Parser to set the callback for
- *                  cb     = New callback
- */
 
 void ekhtml_parser_commentcb_set(ekhtml_parser_t *parser, ekhtml_data_cb_t cb){
     parser->commentcb = cb;
 }
 
-/*
- * ekhtml_parser_cbdata_set:  Set the callback data for the parser
- *
- * Arguments:       parser = Parser to set the callback for
- *                  cb     = New callback data.
- */
-
 void ekhtml_parser_cbdata_set(ekhtml_parser_t *parser, void *cbdata){
     parser->cbdata = cbdata;
 }
-
-/*
- * ekhtml_parser_startcb_add:  Add a new start-tag callback to the parser.
- *                             The tag information is case insensitive.
- *
- * Arguments:    parser = Parser to add a new starttag callback for
- *               tag    = NULL for any unknown tag, else a string
- *                        containing the tag for which the callback 
- *                        should be made.
- *               cback  = Callback to invoke when the tag is found.
- */
 
 void ekhtml_parser_startcb_add(ekhtml_parser_t *parser, const char *tag,
 			       ekhtml_starttag_cb_t cback)
@@ -117,17 +85,6 @@ void ekhtml_parser_startcb_add(ekhtml_parser_t *parser, const char *tag,
         parser->startcb_unk = cback;
     }
 }
-
-/*
- * ekhtml_parser_endcb_add:  Add a new end-tag callback to the parser.
- *                           The tag information is case insensitive.
- *
- * Arguments:    parser = Parser to add a new endtag callback for
- *               tag    = NULL for any unknown tag, else a string
- *                        containing the tag for which the callback 
- *                        should be made.
- *               cback  = Callback to invoke when the tag is found.
- */
 
 void ekhtml_parser_endcb_add(ekhtml_parser_t *parser, const char *tag,
 			     ekhtml_endtag_cb_t cback)

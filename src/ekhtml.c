@@ -146,21 +146,6 @@ int parser_state_determine(const char *startp, const char *endp){
 }
 
 
-/*
- * ekhtml_parser_flush:  Flush the parser innards.  The internal buffer is
- *                       processed, and any remaining state is saved.  All
- *                       data which is processed is removed from the parser
- *                       and the internal buffer is reshuffled.  
- *
- * Arguments:            parser   = Parser to flush
- *                       flushall = Flush all data, even if some tags
- *                                  weren't finished, etc.
- *
- * Return values:        Returns 1 if action was taken -- i.e. bytes were
- *                       processed, and the internal buffer was reshuffled
- *                       else 0
- */
-
 int ekhtml_parser_flush(ekhtml_parser_t *parser, int flushall){
     void **state_data = &parser->state.state_data;
     char *buf = parser->buf, *curp = buf, *endp = buf + parser->nbuf;
@@ -242,18 +227,6 @@ int ekhtml_parser_flush(ekhtml_parser_t *parser, int flushall){
     return didsomething;
 }
 
-/*
- * ekhtml_parser_feed:  Feed data into the HTML parser.  This routine will
- *                      fill up the internal buffer until it can go no
- *                      more, then flush the data and refill.  If there is
- *                      more data that is required than the internal buffer
- *                      can hold, it will be resized
- *
- * Arguments:           parser = Parser to feed the data into 
- *                      data   = Bytes to feed the parser
- *                      ndata  = # of bytes in `data`
- */
-
 void ekhtml_parser_feed(ekhtml_parser_t *parser, const char *data,
 			apr_size_t ndata)
 {
@@ -283,17 +256,6 @@ static apr_status_t ekhtml_parser_cleanup(void *cbdata){
     free(ekparser->buf);
     return APR_SUCCESS;
 }
-
-/*
- * ekhtml_parser_new:  Create a new parser instance.
- *
- * Arguments:          pool   = Pool out of which to allocate the parser.
- *                     cbdata = Callback data to use when calling back 
- *                              into various ... callbacks ... such as the
- *                              data handler, and tag callbacks.
- *
- * Return values:      Returns a new parser instance.
- */
 
 ekhtml_parser_t *ekhtml_parser_new(apr_pool_t *pool, void *cbdata){
     ekhtml_parser_t *res;
