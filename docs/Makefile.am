@@ -1,4 +1,5 @@
 EXTRA_DIST = html 
 
-html:
-	mkdir html
+html: Doxyfile ../configure.in ../include/ekhtml.h
+	doxygen
+

@@ -21,8 +21,8 @@ LIBS="$LIBS $APR_LIBS"
 AC_SUBST(CFLAGS)
 
 AC_OUTPUT(
-        Doxyfile 
         Makefile 
+        docs/Doxyfile 
         docs/Makefile
         include/Makefile
         src/Makefile
