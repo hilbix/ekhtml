@@ -1,3 +1,17 @@
+2002-09-20  Jon Travis  <jtravis@p00p.org>
+
+	*  Added the test_bogus_feedsize.sh test in order to test
+	rare cases where the output may be incorrect on certain
+	feed sizes.
+	
+	*  Optimized comment parsing -- seems about 4% faster on my 
+	large doc test.
+
+2002-09-17  Jon Travis  <jtravis@p00p.org>
+
+	*  Removed dependence on APR.  El-Kabong now compiles 
+	standalone.
+
 2002-09-16  Jon Travis  <jtravis@p00p.org>
 
 	*  Changed all the APIs which previously took a char */length 
