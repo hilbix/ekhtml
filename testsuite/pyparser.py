@@ -9,6 +9,9 @@ class myparser(ek_sgmllib.SGMLParser):
     def handle_data(self, data):
         sys.stdout.write(data)
 
+    def start_way(self, attrs):
+        print 'GOT WAY START!'
+        
     def unknown_starttag(self, tag, attrs):
         print 'START: "%s"' % tag
         for i in range(len(attrs) - 1, -1, -1):

@@ -41,6 +41,12 @@ typedef struct {
     unsigned int only_parse;
 } tester_cbdata;
 
+static void handle_starttag_way(void *cbdata, ekhtml_string_t *tag,
+                                ekhtml_attr_t *attrs)
+{
+    printf("GOT WAY START!\n");
+}
+
 static void handle_starttag(void *cbdata, ekhtml_string_t *tag,
 			    ekhtml_attr_t *attrs)
 {
@@ -121,6 +127,7 @@ int main(int argc, char *argv[]){
     
     ekhtml_parser_datacb_set(ekparser, handle_data);
     ekhtml_parser_commentcb_set(ekparser, handle_comment);
+    ekhtml_parser_startcb_add(ekparser, "WAY", handle_starttag_way);
     ekhtml_parser_startcb_add(ekparser, NULL, handle_starttag);
     ekhtml_parser_endcb_add(ekparser, NULL, handle_endtag);
     ekhtml_parser_cbdata_set(ekparser, &cbdata);
