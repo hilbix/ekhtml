@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 #
 # gen_html: An HTML generation utility
 #
