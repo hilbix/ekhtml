@@ -45,6 +45,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #include "ekhtml_config.h"
 #include "ekhtml.h"
