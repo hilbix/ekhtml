@@ -1,3 +1,9 @@
+2002-09-16  Jon Travis  <jtravis@p00p.org>
+
+	*  Changed all the APIs which previously took a char */length 
+	pair into taking a ekhtml_string_t type, which wraps the same
+	data.
+
 2002-09-12  Jon Travis  <jtravis@p00p.org>
 
 	*  Released version 0.2.0
