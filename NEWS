@@ -1,3 +1,11 @@
+2002-09-21  Jon Travis  <jtravis@p00p.org>
+
+	*  Released version 0.3.0.  This release removes all dependency
+        on APR, speeds up processing, and cleans up a few APIs.  Note
+        that the API cleanup will cause old-code to be incompatible,
+        but the changes are easy to accommodate.
+
+
 2002-09-12  Jon Travis  <jtravis@p00p.org>
 
 	*  Released version 0.2.0.
