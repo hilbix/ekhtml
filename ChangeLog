@@ -1,3 +1,11 @@
+2004-06-12  Jon Travis  <jtravis@p00p.org>
+
+    * Allow comma, semicolon, and pipe as valid characters in 
+      unquoted attribute values.  Fix submitted by Josh 
+      Mankoff?  (jmmankoff)
+
+    * Fixed autogen to use the correct libtoolize on OSX
+
 2002-12-12  Jon Travis  <jtravis@p00p.org>
 
 	*  Tadhg O'Meara noticed that hash.c may not be thread safe
