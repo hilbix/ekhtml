@@ -1,3 +1,6 @@
+- Give more information in callbacks, such as when the beginning and
+  end braces of a tag occurred (offset in the stream)
+
 - Provide a way to parse entity-refs.  This will be handy for usertrack
   in that we can then just specify a &USERTRACK; entity anywhere, and
   have it substituted with the session ID.
