@@ -237,6 +237,7 @@ char *ekhtml_parse_starttag(ekhtml_parser_t *parser, void **state_data,
                 attr->val.str       = NULL;
                 attr->val.len       = 0;
                 attr->isBoolean     = 1;
+                attr->quoteChar     = '\0';
                 attr->next          = NULL;
                 startstate->mode    = EKHTML_STMODE_GETNAME;
                 startstate->curattr = attr;
@@ -310,6 +311,7 @@ char *ekhtml_parse_starttag(ekhtml_parser_t *parser, void **state_data,
                 startstate->curattr->val.str++;  /* Skip the quote */
                 startstate->mode   = EKHTML_STMODE_GETVALUE;
                 startstate->quote  = *workp;
+                startstate->curattr->quoteChar = *workp;
                 workp++;
             } else if(!(EKCMap_CharMap[(unsigned char)*workp] & 
                         EKHTML_CHAR_ATTRVALUE))

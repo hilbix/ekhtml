@@ -1,3 +1,8 @@
+2002-12-12  Jon Travis  <jtravis@p00p.org>
+
+	*  Provide information about what type of quotation was used
+	for attribute values.  Idea submitted by Alan Post.
+
 2002-11-10  Jon Travis  <jtravis@p00p.org>
 
 	*  Fix 3 compilation bugs found by Paul Marquis.  They primarily
