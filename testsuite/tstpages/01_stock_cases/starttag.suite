@@ -19,3 +19,8 @@ ATTR2
 >
 <TAG ATTR1="foo"
 ATTR2>
+
+Check the validity of some of the unquoted attribute values
+<TAG ATTR1=20,30,40>
+<TAG ATTR1=Semicolon;comma,pipe|>
+

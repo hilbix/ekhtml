@@ -19,8 +19,8 @@ quotedattrvalueset = digits + '#$%&()*+,-./:;=?@[\]^_`{|}~'
 attrvalueset = '-@./:+*%?!&$()_#=~*' + letters + digits
 
 DataString = ['In A.D. 2101',
-	      'War was beginning.',
-	      'What happen?',
+              'War was beginning.',
+              'What happen?',
               'Somebody set up us the bomb',
               'We get signal',
               'What!',
