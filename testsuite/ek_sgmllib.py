@@ -259,11 +259,13 @@ class SGMLParser:
             match = attrfind.match(rawdata, k)
             if not match: break
             attrname, rest, attrvalue = match.group(1, 2, 3)
+            qchar = '\0'
             if not rest:
                 attrvalue = attrname
             elif attrvalue[:1] == '\'' or attrvalue[:1] == '"':
+                qchar = attrvalue[:1]
                 attrvalue = attrvalue[1:-1]
-            attrs.append((string.lower(attrname), attrvalue))
+            attrs.append((string.lower(attrname), attrvalue, qchar))
             k = match.end(0)
         if rawdata[j] == '>':
             j = j+1

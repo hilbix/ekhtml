@@ -15,8 +15,11 @@ class myparser(ek_sgmllib.SGMLParser):
     def unknown_starttag(self, tag, attrs):
         print 'START: "%s"' % tag
         for i in range(len(attrs) - 1, -1, -1):
-            key, val = attrs[i]
-            print 'ATTRIBUTE: "%s" = "%s"' % (key, val)
+            key, val, qchar = attrs[i]
+            if qchar != '\0':
+                print 'ATTRIBUTE: "%s" = %c%s%c' % (key, qchar, val, qchar)
+            else:
+                print 'ATTRIBUTE: "%s" = "%s"' % (key, val)
         
     def unknown_endtag(self, tag):
         print 'END: "%s"' % tag

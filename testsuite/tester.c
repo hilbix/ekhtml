@@ -61,10 +61,15 @@ static void handle_starttag(void *cbdata, ekhtml_string_t *tag,
     printf("START: \"%.*s\"\n", tag->len, tag->str);
     for(attr=attrs; attr; attr=attr->next) {
         printf("ATTRIBUTE: \"%.*s\" = ", attr->name.len, attr->name.str);
-        if(!attr->isBoolean)
-            printf("\"%.*s\"\n", attr->val.len, attr->val.str);
-        else
+        if(!attr->isBoolean){
+            if(attr->quoteChar)
+                printf("%c%.*s%c\n", attr->quoteChar, attr->val.len, 
+                       attr->val.str, attr->quoteChar);
+            else
+                printf("\"%.*s\"\n", attr->val.len, attr->val.str);
+        } else {
             printf("\"%.*s\"\n", attr->name.len, attr->name.str);
+        }
     }
 }
 
