@@ -119,7 +119,7 @@ static void ekhtml_buffer_grow(ekhtml_parser_t *parser){
  *
  */
 
-static APR_INLINE 
+static inline
 int parser_state_determine(const char *startp, const char *endp){
     const char *firstchar;
     int newstate;

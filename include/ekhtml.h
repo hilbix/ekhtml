@@ -27,6 +27,8 @@
 #ifndef EKHTML_DOT_H
 #define EKHTML_DOT_H
 
+#include "ekhtml_config.h"
+
 #include "apr.h"
 #include "apr_general.h"
 

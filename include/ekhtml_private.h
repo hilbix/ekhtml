@@ -31,6 +31,8 @@
 #error This file should only be used by the EKHTML library
 #endif
 
+#include "ekhtml_config.h"
+
 #include "apr.h"
 #include "apr_hash.h"
 
@@ -142,7 +144,7 @@ extern char *ekhtml_make_upperstr(char *, int);
  *                    a pointer to the invalid character.
  */
 
-static APR_INLINE 
+static inline
 char *ekhtml_find_notcharsmap(const char *buf, int len, 
 			      const EKHTML_CHARMAP_TYPE *charmap,
 			      EKHTML_CHARMAP_TYPE mask)

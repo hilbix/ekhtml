@@ -71,7 +71,7 @@
  *                 must be initialized by the caller
  */
 
-static APR_INLINE
+static inline
 ekhtml_attr_t *ekhtml_parser_attr_new(ekhtml_parser_t *parser){
     ekhtml_attr_t *res;
     
@@ -94,7 +94,7 @@ ekhtml_attr_t *ekhtml_parser_attr_new(ekhtml_parser_t *parser){
  *
  */
 
-static APR_INLINE
+static inline
 void ekhtml_parser_attr_release(ekhtml_parser_t *parser, ekhtml_attr_t *attr){
     attr->next = parser->freeattrs;
     parser->freeattrs = attr;
@@ -147,7 +147,7 @@ static void release_attributes(ekhtml_parser_t *parser,
     }
 }
 
-static APR_INLINE void scroll_attribute(ekhtml_starttag_state *sstate){
+static inline void scroll_attribute(ekhtml_starttag_state *sstate){
     sstate->curattr->next = sstate->attrs;
     sstate->attrs         = sstate->curattr;
     sstate->curattr       = NULL;
