@@ -10,9 +10,27 @@ AM_CONFIG_HEADER(include/ekhtml_config.h:config.in)
 
 AC_PROG_CC
 AC_C_INLINE
+AC_HEADER_STDC
 AM_PROG_LIBTOOL
-
 EK_MAINTAINER_MODE
+
+AC_MSG_CHECKING(how many bits to use in hash)
+AC_TRY_RUN([
+#if STDC_HEADERS
+#include <stdio.h>
+#include <stdlib.h>
+#endif
+#include "include/hash.h"
+int main(){
+        FILE *fp = fopen("conftest.hash", "w");
+        fprintf(fp, "%d\n", compute_bits());
+        return 0;
+}
+],[NUM_HASH_BITS=`cat conftest.hash`
+AC_MSG_RESULT($NUM_HASH_BITS)],
+[AC_MSG_WARN(Unable to determine number of bits to use in hash.  Using 32)
+NUM_HASH_BITS=32])
+AC_DEFINE_UNQUOTED(EKHTML_HASH_BITS,$NUM_HASH_BITS)
 
 AC_OUTPUT(
         Makefile 

@@ -1,5 +1,12 @@
 2002-12-12  Jon Travis  <jtravis@p00p.org>
 
+	*  Tadhg O'Meara noticed that hash.c may not be thread safe
+	when computing the hash bits.  This calculation has been
+	moved to a configure-time event, so there are no longer any
+	more known thread-safe issues.
+
+2002-12-12  Jon Travis  <jtravis@p00p.org>
+
 	*  Provide information about what type of quotation was used
 	for attribute values.  Idea submitted by Alan Post.
 

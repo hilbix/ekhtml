@@ -14,6 +14,7 @@
    Leave the following blank line there!!  Autoheader needs it.  */
 
 
+#undef EKHTML_HASH_BITS
 #undef EKHTML_VER_BUGFIX
 #undef EKHTML_VER_MAJOR
 #undef EKHTML_VER_MINOR
