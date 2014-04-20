@@ -1,0 +1,30 @@
+# Added by ./automake.sh
+include/ekhtml_config.h
+include/stamp-h1
+.deps
+autom4te.cache/
+compile
+config.guess
+config.sub
+depcomp
+install-sh
+ltmain.sh
+missing
+test-driver
+Makefile.in
+Makefile
+aclocal.m4
+config.in
+config.log
+config.status
+configure
+docs/Doxyfile
+libtool
+# Added by make
+*.o
+*.lo
+*.la
+.libs/
+src/ekhtml_mktables
+src/ekhtml_tables.h
+testsuite/tester
