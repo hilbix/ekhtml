@@ -34,6 +34,13 @@ DIE=0
 	DIE=1
 }
 
+if ! which "$LIBTOOLIZE" >/dev/null
+then
+	echo
+	echo "You must have $LIBTOOLIZE installed to compile $PROJECT."
+	DIE=1
+fi
+
 if test "$DIE" -eq 1; then
 	exit 1
 fi
